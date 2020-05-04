@@ -17,6 +17,7 @@ class Admin extends CI_Controller {
             redirect('administrator','refresh');
         }
         $this->load->model('admin_model', 'a');
+        $this->load->model('class_model', 'c');
     }
     
 
@@ -173,6 +174,76 @@ class Admin extends CI_Controller {
         $this->load->view('template/sidebar', $data);
         $this->load->view('admin/data-pemilih', $data);
         $this->load->view('template/footer', $data);
+    }
+
+    public function dataPemilih()
+    {
+        $draw = intval($this->input->post('draw'));
+        $start = $this->input->post('start');
+        $length = $this->input->post('length');
+        $fetch_data = $this->a->make_datatables($length, $start);
+        $data = [];
+        $no = 1;
+        foreach ($fetch_data as $row) {
+            $id = $row->id;
+            $sub_array = [];
+            $sub_array[] = $no++;
+            $sub_array[] = $this->a->get_count_user($id);
+            $sub_array[] = $row->kelas;
+            $sub_array[] = '<button type="button" data-toggle="modal" data-target="#modalView" data-id="'.encrypt_url($row->id).'" name="detail" class="btn btn-xs btn-primary detail"><i class="fa fa-fw fa-book"></i>Detail</button>';
+            $sub_array[] = '<button type="button" data-id="'.encrypt_url($row->id).'" name="hapus" class="btn btn-xs btn-danger delete"><i class="fa fa-fw fa-trash"></i>Delete</button>';
+            $data[] = $sub_array;
+        }
+        $output = [
+            "draw" => $draw,
+            "recordsTotal" => $this->a->get_all_data(),
+            "recordsFiltered" => $this->a->get_filtered_data(),
+            "data" => $data
+        ];
+
+        echo json_encode($output);
+    }
+
+    public function action()
+    {
+        $action = $this->uri->segment(3);
+        $this->load->model('peserta_model', 'p');
+        switch ($action) {
+            case 'delete':
+                $result = $this->c->delete_class($this->input->get('id'));
+                echo json_encode($result);
+                break;
+            case 'detail':
+                $draw = intval($this->input->post('draw'));
+                $start = $this->input->post('start');
+                $length = $this->input->post('length');
+                $kelas = decrypt_url($this->input->post('id'));
+                $fetch_data = $this->p->make_datatables($length, $start, $kelas);
+                $data = [];
+                $no = 1;
+                foreach ($fetch_data as $row) {
+                    $status = $row->status == 1 ? '<button type="button"class="btn btn-xs btn-success disabled">Sudah Memilih</button>' : '<button type="button"class="btn btn-xs btn-warning disabled">Belum Memilih</button>';
+                    $id = $row->id;
+                    $sub_array = [];
+                    $sub_array[] = $no++;
+                    $sub_array[] = $row->NIS;
+                    $sub_array[] = $row->nama_lengkap;
+                    $sub_array[] = $status;
+                    $data[] = $sub_array;
+                }
+                $output = [
+                    "draw" => $draw,
+                    "recordsTotal" => $this->a->get_all_data(),
+                    "recordsFiltered" => $this->a->get_filtered_data(),
+                    "data" => $data
+                ];
+                echo json_encode($output);
+                break;
+            
+            default:
+                # code...
+                break;
+        }
     }
 
 }

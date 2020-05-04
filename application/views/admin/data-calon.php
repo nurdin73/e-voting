@@ -186,4 +186,183 @@
 	</div>
 	<!-- /.modal -->
 
+	<script type="text/javascript">
+		
+
+    // modal detail paslon
+    $('.detail').click(function (e) { 
+        e.preventDefault();
+        var id = $(this).data('id');
+        $.ajax({
+            type: "GET",
+            url: "<?= base_url('admin/detailCalon') ?>",
+            data: {
+                'id' : id
+            },
+            success: function (response) {
+                var json = JSON.parse(response);
+                $('#foto').attr('src', '<?= base_url('assets/dist/img/img-calon/') ?>' + json.foto);
+                $('#nama').text(json.nama);
+                $('#visi').text(json.visi);
+                $('#misi').text(json.misi);
+                $('#jml').text(json.vot);
+            }
+        });
+    });
+    // delete paslon
+    $('.hapus').click(function (e) { 
+        e.preventDefault();
+        var id = $(this).data('id');
+        Swal.fire({
+            title: 'Apakah Kamu Yakin?',
+            text: "Apakah anda ingin menghapus paslon?",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Saya Yakin!'
+            }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    type: "GET",
+                    url: "<?= base_url('admin/calon/delete') ?>",
+                    data: {
+                        'id' : id
+                    },
+                    success: function (response) {
+                        Swal.fire(
+                            'Sukses!',
+                            'Data Paslon Berhasil Dihapus',
+                            'success'
+                        ).then((result) => {
+                            window.location.href = '<?= base_url('admin/calon') ?>';
+                        })
+                    },
+                    error: function (response) {  
+                        Swal.fire(
+                            'Error!',
+                            'Data Paslon Gagal Dihapus',
+                            'error'
+                        )
+                    }
+                });
+            }
+        });
+    });
+    // preview gambar
+    function prev(userfile, idpreview) {  
+        var gb = userfile.files;
+        for (var i = 0; i < gb.length; i++) {
+            var gbprev = gb[i];
+            var imageType = /image.*/;
+            var preview = document.getElementById(idpreview);
+            var reader = new FileReader();
+            if (gbprev.type.match(imageType)) {
+                preview.file = gbprev;
+                reader.onload = (function (element) {  
+                    return function(e) {
+                        element.src = e.target.result;
+                    }
+                })(preview);
+                reader.readAsDataURL(gbprev);
+            } else {
+                alert("Type file harus .png, .jpg, .gif");
+            }
+            
+        }
+    }
+    // edit gambar
+    // modal edit paslon
+    $('.edit').click(function (e) { 
+        e.preventDefault();
+        var id = $(this).data('id');
+        $.ajax({
+            type: "GET",
+            url: "<?= base_url('admin/detailCalon') ?>",
+            data: {
+                'id' : id
+            },
+            success: function (response) {
+                var json = JSON.parse(response); 
+                $('#preview').attr('src', '<?= base_url('assets/dist/img/img-calon/') ?>' + json.foto);
+                $('#id').val(json.id);
+                $('#nama2').val(json.nama);
+                $('#visi2').val(json.visi);
+                $('#misi2').val(json.misi);
+            }
+        });
+    });
+
+    // update data calon 
+    $('#editData').submit(function (e) { 
+        e.preventDefault();
+        $('#editData').validate({
+            rules : {
+                nama : {
+                    required : true
+                },
+                visi : {
+                    required : true,
+                    minlength : 20
+                },
+                misi : {
+                    required : true,
+                    minlength : 100 
+                },
+                foto : {
+                    required : true
+                }
+            },
+            messages : {
+                nama : {
+                    required : 'Nama Paslon Harus Diisi'
+                },
+                visi : {
+                    required : 'Visi Wajib Diisi',
+                    minlength : 'Jumlah Huruf Minimal 30'
+                },
+                misi : {
+                    required : 'Misi Wajib Diisi',
+                    minlength : 'Jumlah Huruf Minimal 100'
+                },
+                foto : {
+                    required : 'Foto Wajib Ditambahkan',
+                }
+            },
+            errorElement : "small",
+            submitHandler : updateData
+        })
+        function updateData() {
+            var editData = new FormData($('#editData')[0]);
+            $.ajax({
+                xhr : function() {  
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener('progress', function (e) {  
+                        var percent = Math.round((e.loaded / e.total) * 100);
+                        $('#per').attr('aria-valuenow', percent).css('width', percent + '%').text(percent + '% Complete');
+                    });
+                    return xhr;
+                },  
+                type: "POST",
+                url: "<?= base_url('admin/calon/update') ?>",
+                data: editData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    Swal.fire(
+                        'Sukses!',
+                        'Data Paslon Berhasil Dirubah!',
+                        'success'
+                    ).then((result) => {
+                        window.location.href = '<?= base_url('admin/calon') ?>';
+                    })
+                },
+                error: function (response) {
+                    console.log(response);
+                }
+            });
+        }
+    });
+	</script>
+
   

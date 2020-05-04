@@ -25,6 +25,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
         page. However, you can choose any other skin. Make sure you
         apply the skin class to the body tag so the changes take effect. -->
   <link rel="stylesheet" href="<?= base_url('assets/') ?>dist/css/skins/skin-blue.min.css">
+  <!-- jQuery 3 -->
+  <script src="<?= base_url('assets/') ?>bower_components/jquery/dist/jquery.min.js"></script>
+  <!-- Sweetalert 2 -->
+  <script src="<?= base_url('assets/') ?>dist/js/sweetalert2.all.min.js"></script>
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->

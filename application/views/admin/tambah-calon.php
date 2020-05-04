@@ -71,4 +71,78 @@
     </section>
     <!-- /.content -->
   </div>
+
+  <script type="text/javascript">
+  	 // form Data
+
+    $('#formData').submit(function (e) { 
+        e.preventDefault();
+        $('#formData').validate({
+            rules : {
+                nama_paslon : {
+                    required : true
+                },
+                visi : {
+                    required : true,
+                    minlength : 20
+                },
+                misi : {
+                    required : true,
+                    minlength : 100 
+                },
+                foto : {
+                    required : true
+                }
+            },
+            messages : {
+                nama_paslon : {
+                    required : 'Nama Paslon Harus Diisi'
+                },
+                visi : {
+                    required : 'Visi Wajib Diisi',
+                    minlength : 'Jumlah Huruf Minimal 30'
+                },
+                misi : {
+                    required : 'Misi Wajib Diisi',
+                    minlength : 'Jumlah Huruf Minimal 100'
+                },
+                foto : {
+                    required : 'Foto Wajib Ditambahkan',
+                }
+            },
+            errorElement : "small",
+            submitHandler : submitForm
+        })
+        function submitForm() {
+            var formData = new FormData($('#formData')[0]);  
+            $.ajax({
+                xhr : function() {  
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener('progress', function (e) {  
+                        var percent = Math.round((e.loaded / e.total) * 100);
+                        $('#percent').attr('aria-valuenow', percent).css('width', percent + '%').text(percent + '% Complete');
+                    });
+                    return xhr;
+                },
+                type: "POST",
+                url: "<?= base_url('admin/calon/adds') ?>",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $('#percent').attr('aria-valuenow', 0).css('width',  '0%').text('');
+                    $('#formData')[0].reset();
+                    Swal.fire(
+                        'Sukses!',
+                        'Data Paslon Berhasil Ditambahkan',
+                        'success'
+                    )
+                },
+                error: function (response) {  
+                    console.log(response);
+                }
+            });
+        }
+    });
+  </script>
   
